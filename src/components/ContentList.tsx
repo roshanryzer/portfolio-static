@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 
 export function StaggeredListItem({
-  index: _index,
   className,
   children,
 }: {

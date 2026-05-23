@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars and edit values
+
+aws_region   = "ap-southeast-2"
+project_name = "portfolio"
+
+# IAM user that GitHub Actions uses to upload to S3 and invalidate CloudFront
+deploy_user_name = "portfolio-deployer"
+
+# Custom domain via CloudFront + Route 53
+hosted_zone_id       = "Z00648313M37VHZ2DMPSG"
+domain_name          = "roshan-shrestha.com"
+enable_custom_domain = true
+create_www_record    = false
+
+# Leave empty to auto-create and DNS-validate an ACM cert in us-east-1
+frontend_certificate_arn = ""

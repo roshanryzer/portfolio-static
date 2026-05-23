@@ -11,6 +11,13 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+
+# Terraform (see also terraform/.gitignore)
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform/terraform.tfvars
 
 # Editor directories and files
 .vscode/*

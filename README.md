@@ -1,57 +1,60 @@
 # Portfolio (static)
 
-Simple static portfolio app built with **React + Vite + TypeScript**.
+Static portfolio built with **React + Vite + TypeScript**. No backend API,
+database, or always-on server.
 
-This version does not require a backend API, database, or Redis. It is intended
-to reduce hosting costs and deploy easily to static hosting providers.
+Production hosting: **AWS S3 + CloudFront + Route 53** via Terraform, with
+**GitHub Actions** deploy on push to `main`.
+
+Live site: `https://roshan-shrestha.com`
 
 ## Quick start (local)
 
 ```bash
-cd portfolio-static
 npm install
 npm run dev
 ```
 
-Default local URL:
+Open `http://localhost:5173`.
 
-```text
-http://localhost:5173
+## Contact form
+
+Optional hosted form endpoint (Formspree, Web3Forms, etc.):
+
+```bash
+cp .env.example .env
+# VITE_CONTACT_FORM_ENDPOINT=https://formspree.io/f/...
 ```
 
-## Contact email setup (static)
+Without it, the contact page uses `mailto:`.
 
-This site can send contact form submissions via a hosted form endpoint.
-
-1. Copy `.env.example` to `.env`
-2. Set:
-
-```text
-VITE_CONTACT_FORM_ENDPOINT=your-form-endpoint-url
-```
-
-Examples: Formspree/Web3Forms/Getform endpoint URLs.
-
-## Build for production
+## Build
 
 ```bash
 npm run build
 npm run preview
 ```
 
-The production files are generated in:
+Output: `dist/`
+
+## Deploy to AWS
+
+1. **Infrastructure:** `terraform/` — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+2. **Migrating from full-stack:** [docs/MIGRATION_FROM_FULLSTACK.md](docs/MIGRATION_FROM_FULLSTACK.md)
+3. **CI/CD:** set GitHub Secrets, push to `main`
+
+Required GitHub Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+`AWS_REGION`, `FRONTEND_S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`.
+
+## Repository layout
 
 ```text
-portfolio-static/dist
+├── src/                 React pages and components
+├── terraform/           AWS S3 + CloudFront + Route 53
+├── .github/workflows/   CI and deploy
+└── docs/                Deployment and migration guides
 ```
 
-## Deployment guide
+## License
 
-Follow:
-
-`docs/DEPLOYMENT.md`
-
-The guide includes:
-- Git setup and push to GitHub
-- Deploying on Cloudflare Pages (free-tier friendly)
-- Deploying on AWS S3 static website hosting
+Private / portfolio use.
