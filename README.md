@@ -17,16 +17,18 @@ npm run dev
 
 Open `http://localhost:5173`.
 
-## Contact form
+## Contact form (Gmail)
 
-Optional hosted form endpoint (Formspree, Web3Forms, etc.):
+Submissions are sent to your Gmail inbox via **Google Apps Script** (no backend server).
+
+Setup guide: [docs/GMAIL_CONTACT_FORM.md](docs/GMAIL_CONTACT_FORM.md)
 
 ```bash
 cp .env.example .env
-# VITE_CONTACT_FORM_ENDPOINT=https://formspree.io/f/...
+# VITE_CONTACT_FORM_ENDPOINT=https://script.google.com/macros/s/.../exec
 ```
 
-Without it, the contact page uses `mailto:`.
+Add the same value as GitHub secret `VITE_CONTACT_FORM_ENDPOINT` for production deploys.
 
 ## Build
 

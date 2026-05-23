@@ -66,7 +66,7 @@ export const siteContent = {
   },
   contact: {
     title: 'Contact',
-    subtitle: 'Send a message (Formspree or similar) or reach out by email.',
+    subtitle: 'Send a message below — it goes straight to my Gmail inbox.',
     formSubject: 'Portfolio contact message',
     formLabels: {
       name: 'Name',
@@ -78,11 +78,13 @@ export const siteContent = {
     buttons: {
       send: 'Send message',
       sending: 'Sending...',
+      sendViaEmail: 'Open in email app',
     },
     messages: {
-      notConfigured: 'Configure VITE_CONTACT_FORM_ENDPOINT for hosted form, or use Open email below.',
-      success: 'Thanks! Your message has been sent.',
-      error: 'Could not send message right now. Please email me directly.',
+      mailtoHint: 'Gmail delivery is not configured yet. Submit opens your email app instead.',
+      mailtoOpening: 'Opening your email app…',
+      success: 'Thanks! Your message has been sent to my Gmail inbox.',
+      error: 'Could not send right now. Please email me directly.',
     },
     links: {
       email: 'Email',

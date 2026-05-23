@@ -41,17 +41,16 @@ npm run build
 npm run preview
 ```
 
-### Contact form (optional)
+### Contact form (Gmail via Google Apps Script)
 
-Copy `.env.example` to `.env` and set a hosted form endpoint (Formspree,
-Web3Forms, etc.):
+Follow [docs/GMAIL_CONTACT_FORM.md](GMAIL_CONTACT_FORM.md) to deploy the script and
+copy the `/exec` URL into:
 
 ```text
-VITE_CONTACT_FORM_ENDPOINT=https://formspree.io/f/YOUR_FORM_ID
+VITE_CONTACT_FORM_ENDPOINT=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 ```
 
-Without this variable, the contact page opens the visitor's email client
-(`mailto:`).
+Without this variable, submit falls back to opening the visitor's email app.
 
 ## Part 1 — AWS infrastructure (Terraform, one-time)
 
@@ -108,7 +107,7 @@ GitHub → `portfolio-static` → Settings → Secrets and variables → Actions
 | `AWS_REGION` | `ap-southeast-2` |
 | `FRONTEND_S3_BUCKET` | Terraform output `frontend_bucket_name` |
 | `CLOUDFRONT_DISTRIBUTION_ID` | Terraform output `cloudfront_distribution_id` |
-| `VITE_CONTACT_FORM_ENDPOINT` | Optional hosted form URL |
+| `VITE_CONTACT_FORM_ENDPOINT` | Google Apps Script web app URL (Gmail) — see `docs/GMAIL_CONTACT_FORM.md` |
 
 Terraform attaches S3 upload and CloudFront invalidation permissions to
 `deploy_user_name` when set in `terraform.tfvars`.

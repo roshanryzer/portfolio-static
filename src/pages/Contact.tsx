@@ -14,7 +14,8 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [flash, setFlash] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
-  const endpoint = import.meta.env.VITE_CONTACT_FORM_ENDPOINT as string | undefined;
+  const endpoint = (import.meta.env.VITE_CONTACT_FORM_ENDPOINT as string | undefined)?.trim() || undefined;
+  const usesHostedForm = Boolean(endpoint);
 
   function openMailto() {
     const body = [
@@ -54,28 +55,34 @@ export default function Contact() {
 
     if (!endpoint) {
       openMailto();
-      setFlash({ type: 'ok', text: 'Opening your email client…' });
+      setFlash({ type: 'ok', text: content.contact.messages.mailtoOpening });
       return;
     }
 
     setLoading(true);
     try {
-      const fd = new FormData();
-      fd.set('name', trimmedName);
-      fd.set('email', trimmedEmail);
-      fd.set('phone', trimmedPhone);
-      fd.set('subject', subject);
-      fd.set('message', message);
-      const res = await fetch(endpoint, { method: 'POST', headers: { Accept: 'application/json' }, body: fd });
-      if (!res.ok) throw new Error('send');
-      setFlash({ type: 'ok', text: 'Message sent successfully.' });
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          name: trimmedName,
+          email: trimmedEmail,
+          phone: trimmedPhone,
+          subject: subject || content.contact.formSubject,
+          message,
+          _gotcha: '',
+        }),
+      });
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) throw new Error(data.error || 'send');
+      setFlash({ type: 'ok', text: content.contact.messages.success });
       setName('');
       setEmail('');
       setPhone('');
       setSubject('');
       setMessage('');
     } catch {
-      setFlash({ type: 'err', text: 'Failed to send — try email instead.' });
+      setFlash({ type: 'err', text: content.contact.messages.error });
     } finally {
       setLoading(false);
     }
@@ -98,11 +105,8 @@ export default function Contact() {
             </a>
             .
           </p>
-          {!endpoint && (
-            <p className="text-sm text-amber-800 dark:text-amber-200 mt-3">
-              No <code className="text-xs">VITE_CONTACT_FORM_ENDPOINT</code> configured — submit opens your mail client
-              with the form contents.
-            </p>
+          {!usesHostedForm && (
+            <p className="text-sm text-slate-500 dark:text-ink-soft mt-3">{content.contact.messages.mailtoHint}</p>
           )}
         </div>
 
@@ -110,6 +114,7 @@ export default function Contact() {
           onSubmit={onSubmit}
           className="space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-navy-light/60 p-6"
         >
+          <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -176,7 +181,11 @@ export default function Contact() {
             disabled={loading}
             className="w-full px-4 py-2 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 disabled:opacity-60"
           >
-            {loading ? content.contact.buttons.sending : content.contact.buttons.send}
+            {loading
+              ? content.contact.buttons.sending
+              : usesHostedForm
+                ? content.contact.buttons.send
+                : content.contact.buttons.sendViaEmail}
           </button>
           {flash && (
             <p className={flash.type === 'ok' ? 'text-green-600 dark:text-green-400 text-sm' : 'text-red-600 text-sm'}>
