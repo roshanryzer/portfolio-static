@@ -26,6 +26,7 @@ locals {
   )
   create_frontend_cert = local.create_custom_domain && var.frontend_certificate_arn == ""
   frontend_cloudfront_certificate_arn = (
+    !local.create_custom_domain ? null :
     var.frontend_certificate_arn != "" ?
     var.frontend_certificate_arn :
     aws_acm_certificate_validation.frontend[0].certificate_arn
