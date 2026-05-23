@@ -2,6 +2,7 @@
 .terraform/
 *.tfstate
 *.tfstate.*
+*.bak
 terraform.tfvars
 crash.log
 override.tf

@@ -105,9 +105,6 @@ export default function Contact() {
             </a>
             .
           </p>
-          {!usesHostedForm && (
-            <p className="text-sm text-slate-500 dark:text-ink-soft mt-3">{content.contact.messages.mailtoHint}</p>
-          )}
         </div>
 
         <form

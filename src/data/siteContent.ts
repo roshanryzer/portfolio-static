@@ -58,7 +58,7 @@ export const siteContent = {
   },
   resume: {
     title: 'Resume',
-    subtitle: 'Print-friendly view built from the same portfolio data as the full-stack app.',
+    subtitle: 'Print-friendly view of my experience, education, and skills.',
     experienceTitle: 'Experience',
     educationTitle: 'Education',
     coreSkillsTitle: 'Core Skills',
@@ -81,9 +81,8 @@ export const siteContent = {
       sendViaEmail: 'Open in email app',
     },
     messages: {
-      mailtoHint: 'Gmail delivery is not configured yet. Submit opens your email app instead.',
       mailtoOpening: 'Opening your email app…',
-      success: 'Thanks! Your message has been sent to my Gmail inbox.',
+      success: 'Thanks! Your message has been sent.',
       error: 'Could not send right now. Please email me directly.',
     },
     links: {

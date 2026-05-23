@@ -1,14 +1,12 @@
 # Portfolio (static)
 
-Static portfolio built with **React + Vite + TypeScript**. No backend API,
-database, or always-on server.
+Static portfolio built with **React + Vite + TypeScript**.
 
-Production hosting: **AWS S3 + CloudFront + Route 53** via Terraform, with
-**GitHub Actions** deploy on push to `main`.
+Hosted on **AWS S3 + CloudFront + Route 53** with deploy on push to `main`.
 
 Live site: `https://roshan-shrestha.com`
 
-## Quick start (local)
+## Quick start
 
 ```bash
 npm install
@@ -19,16 +17,11 @@ Open `http://localhost:5173`.
 
 ## Contact form (Gmail)
 
-Submissions are sent to your Gmail inbox via **Google Apps Script** (no backend server).
-
-Setup guide: [docs/GMAIL_CONTACT_FORM.md](docs/GMAIL_CONTACT_FORM.md)
+Set up Google Apps Script once: [docs/GMAIL_CONTACT_FORM.md](docs/GMAIL_CONTACT_FORM.md)
 
 ```bash
 cp .env.example .env
-# VITE_CONTACT_FORM_ENDPOINT=https://script.google.com/macros/s/.../exec
 ```
-
-Add the same value as GitHub secret `VITE_CONTACT_FORM_ENDPOINT` for production deploys.
 
 ## Build
 
@@ -37,26 +30,20 @@ npm run build
 npm run preview
 ```
 
-Output: `dist/`
+## Deploy
 
-## Deploy to AWS
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-1. **Infrastructure:** `terraform/` — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
-2. **Migrating from full-stack:** [docs/MIGRATION_FROM_FULLSTACK.md](docs/MIGRATION_FROM_FULLSTACK.md)
-3. **CI/CD:** set GitHub Secrets, push to `main`
+GitHub Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`,
+`FRONTEND_S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`, and optionally
+`VITE_CONTACT_FORM_ENDPOINT`.
 
-Required GitHub Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
-`AWS_REGION`, `FRONTEND_S3_BUCKET`, `CLOUDFRONT_DISTRIBUTION_ID`.
-
-## Repository layout
+## Layout
 
 ```text
-├── src/                 React pages and components
-├── terraform/           AWS S3 + CloudFront + Route 53
+├── src/                 React app
+├── terraform/           AWS infrastructure
+├── google-apps-script/  Gmail contact form handler
 ├── .github/workflows/   CI and deploy
-└── docs/                Deployment and migration guides
+└── docs/
 ```
-
-## License
-
-Private / portfolio use.

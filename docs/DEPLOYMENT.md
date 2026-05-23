@@ -1,29 +1,16 @@
-# Deployment & Operations Guide (AWS Terraform + GitHub Actions)
+# Deployment Guide
 
-Static portfolio deployment for **S3 + CloudFront + Route 53** at
-`roshan-shrestha.com`. No EC2, database, or API server.
-
-Repository: `https://github.com/roshanryzer/portfolio-static`
-
-If you are replacing the old full-stack app, read
-`docs/MIGRATION_FROM_FULLSTACK.md` first.
+Static portfolio on **S3 + CloudFront + Route 53** at `roshan-shrestha.com`.
 
 ## Architecture
 
 ```text
-Browser
-  └── Route 53 (roshan-shrestha.com)
-        └── CloudFront (HTTPS, ACM cert in us-east-1)
-              └── S3 bucket (private; OAC from CloudFront)
+Browser → Route 53 → CloudFront (HTTPS) → S3
 ```
 
-GitHub Actions on push to `main`:
+Push to `main` runs GitHub Actions: build → S3 sync → CloudFront invalidation.
 
-1. `npm run build` → `dist/`
-2. `aws s3 sync` (cache-friendly asset uploads)
-3. CloudFront invalidation for `/index.html` and `/assets/*`
-
-## Part 0 — Local setup
+## 1. Local setup
 
 ```powershell
 git clone https://github.com/roshanryzer/portfolio-static.git
@@ -32,50 +19,13 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`.
+Contact form: [GMAIL_CONTACT_FORM.md](GMAIL_CONTACT_FORM.md)
 
-Production build check:
-
-```powershell
-npm run build
-npm run preview
-```
-
-### Contact form (Gmail via Google Apps Script)
-
-Follow [docs/GMAIL_CONTACT_FORM.md](GMAIL_CONTACT_FORM.md) to deploy the script and
-copy the `/exec` URL into:
-
-```text
-VITE_CONTACT_FORM_ENDPOINT=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
-```
-
-Without this variable, submit falls back to opening the visitor's email app.
-
-## Part 1 — AWS infrastructure (Terraform, one-time)
-
-### Step 1A — Configure variables
+## 2. Terraform (one-time)
 
 ```powershell
 cd terraform
 Copy-Item terraform.tfvars.example terraform.tfvars
-```
-
-Edit `terraform.tfvars`:
-
-| Variable | Example | Purpose |
-| --- | --- | --- |
-| `aws_region` | `ap-southeast-2` | S3 bucket region |
-| `project_name` | `portfolio` | Resource name prefix |
-| `deploy_user_name` | `portfolio-deployer` | IAM user for GitHub deploy |
-| `hosted_zone_id` | `Z00648313M37VHZ2DMPSG` | Route 53 zone |
-| `domain_name` | `roshan-shrestha.com` | Custom domain |
-| `enable_custom_domain` | `true` | CloudFront + DNS + HTTPS |
-| `create_www_record` | `false` | Skip `www` alias if unused |
-
-### Step 1B — Apply Terraform
-
-```powershell
 terraform init
 terraform plan
 terraform apply
@@ -86,110 +36,42 @@ Save outputs:
 ```powershell
 terraform output frontend_bucket_name
 terraform output cloudfront_distribution_id
-terraform output frontend_url
 ```
 
-### Fresh AWS account vs existing full-stack stack
-
-- **New account:** run `terraform apply` here; skip migration doc.
-- **Existing full-stack deploy:** follow `docs/MIGRATION_FROM_FULLSTACK.md` to
-  destroy backend services and move state into this repo without recreating S3 /
-  CloudFront.
-
-## Part 2 — GitHub Secrets
-
-GitHub → `portfolio-static` → Settings → Secrets and variables → Actions.
+## 3. GitHub Secrets
 
 | Secret | Value |
 | --- | --- |
-| `AWS_ACCESS_KEY_ID` | Access key for `portfolio-deployer` |
-| `AWS_SECRET_ACCESS_KEY` | Matching secret key |
+| `AWS_ACCESS_KEY_ID` | `portfolio-deployer` access key |
+| `AWS_SECRET_ACCESS_KEY` | Matching secret |
 | `AWS_REGION` | `ap-southeast-2` |
-| `FRONTEND_S3_BUCKET` | Terraform output `frontend_bucket_name` |
-| `CLOUDFRONT_DISTRIBUTION_ID` | Terraform output `cloudfront_distribution_id` |
-| `VITE_CONTACT_FORM_ENDPOINT` | Google Apps Script web app URL (Gmail) — see `docs/GMAIL_CONTACT_FORM.md` |
+| `FRONTEND_S3_BUCKET` | Terraform `frontend_bucket_name` |
+| `CLOUDFRONT_DISTRIBUTION_ID` | Terraform `cloudfront_distribution_id` |
+| `VITE_CONTACT_FORM_ENDPOINT` | Optional Gmail Apps Script URL |
 
-Terraform attaches S3 upload and CloudFront invalidation permissions to
-`deploy_user_name` when set in `terraform.tfvars`.
+## 4. Deploy
 
-## Part 3 — Deploy
-
-### Automatic (recommended)
-
-Push to `main`:
-
-```powershell
-git add .
-git commit -m "Deploy static portfolio"
-git push origin main
-```
-
-Open GitHub → Actions → **Deploy to AWS** and wait for success.
-
-### Manual (first deploy or emergency)
+Push to `main`, or deploy manually:
 
 ```powershell
 npm run build
-
-$bucket = "portfolio-frontend-YOUR_ACCOUNT_ID"
-$distId = "YOUR_CLOUDFRONT_DISTRIBUTION_ID"
-
-aws s3 sync dist/assets/ "s3://$bucket/assets/" --delete --cache-control "public,max-age=31536000,immutable"
-aws s3 cp dist/index.html "s3://$bucket/index.html" --cache-control "no-cache,no-store,must-revalidate" --content-type "text/html"
-aws s3 sync dist/ "s3://$bucket/" --exclude "assets/*" --exclude "index.html" --cache-control "public,max-age=300"
-aws cloudfront create-invalidation --distribution-id $distId --paths "/index.html" "/assets/*"
+aws s3 sync dist/assets/ s3://YOUR_BUCKET/assets/ --delete --cache-control "public,max-age=31536000,immutable"
+aws s3 cp dist/index.html s3://YOUR_BUCKET/index.html --cache-control "no-cache,no-store,must-revalidate" --content-type "text/html"
+aws s3 sync dist/ s3://YOUR_BUCKET/ --exclude "assets/*" --exclude "index.html" --cache-control "public,max-age=300"
+aws cloudfront create-invalidation --distribution-id YOUR_DIST_ID --paths "/index.html" "/assets/*"
 ```
 
-## Part 4 — Verification checklist
+## 5. Verify
 
-- [ ] `https://roshan-shrestha.com` loads the homepage
-- [ ] Refresh deep links: `/projects`, `/contact`, `/resume` (no 404)
-- [ ] Mobile and desktop layouts look correct
-- [ ] Contact form works (`mailto` or hosted endpoint)
-- [ ] GitHub Actions deploy succeeds on push to `main`
+- `https://roshan-shrestha.com` loads
+- Deep links refresh without 404 (`/projects`, `/contact`, `/resume`)
+- Contact form sends (Gmail or mailto fallback)
 
-## Part 5 — CI on pull requests
-
-Workflow `.github/workflows/ci.yml` runs on PRs to `main`:
-
-- `npm ci`
-- `npm run lint`
-- `npm run build`
-
-## Part 6 — Cost guidance
-
-Typical monthly cost (low traffic portfolio):
-
-| Service | Approx. cost |
-| --- | --- |
-| S3 storage + requests | under $1 AUD |
-| CloudFront | Often free-tier / low single digits AUD |
-| Route 53 hosted zone | ~$0.50 USD/month (if not already paid) |
-| **Removed vs full-stack** | EC2 + ALB (~$25–40 AUD/month saved) |
-
-## Part 7 — Cleanup
-
-To delete all AWS resources managed by this Terraform:
+## 6. Destroy infrastructure
 
 ```powershell
 cd terraform
 terraform destroy
 ```
 
-**Warning:** This deletes the S3 bucket contents configuration, CloudFront
-distribution, and DNS records. Download anything you need first.
-
-## Part 8 — Repository layout
-
-```text
-portfolio-static/
-├── src/                    React app
-├── terraform/              AWS infrastructure (S3, CloudFront, Route 53)
-├── .github/workflows/
-│   ├── ci.yml              PR checks
-│   └── deploy.yml          Push-to-main deploy
-├── docs/
-│   ├── DEPLOYMENT.md       This guide
-│   └── MIGRATION_FROM_FULLSTACK.md
-└── package.json
-```
+**Warning:** removes S3, CloudFront, and DNS for this site.

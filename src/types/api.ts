@@ -1,4 +1,4 @@
-/** Portfolio types aligned with portfolio-fullstack backend API */
+/** Portfolio content types */
 
 export interface Profile {
   id: string;

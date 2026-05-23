@@ -1,4 +1,4 @@
-/** Long-form experience text from portfolio-fullstack Prisma seed */
+/** Long-form experience copy for modals and case studies */
 
 export const EXPERIENCE_MATTER = [
   'Developed an IoT-enabled smart waste management platform integrating sensor-based data ingestion, real-time device monitoring, and analytics dashboards to optimize waste collection efficiency and operational planning.',
